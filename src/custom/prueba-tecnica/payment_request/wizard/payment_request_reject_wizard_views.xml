@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="payment_request_reject_wizard_view_form" model="ir.ui.view">
+        <field name="name">payment.request.reject.wizard.form</field>
+        <field name="model">payment.request.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Rechazar Solicitud de Pago">
+                <p class="text-muted">
+                    El motivo indicado quedará registrado en el historial de la solicitud y será visible para el solicitante.
+                </p>
+                <group>
+                    <field name="payment_request_id" invisible="1"/>
+                    <field name="reason" placeholder="Indique claramente la razón por la cual no procede este pago..." required="1"/>
+                </group>
+                <footer>
+                    <button name="action_confirm_reject" string="Confirmar Rechazo" type="object" class="btn-danger"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="payment_approval_level_view_tree" model="ir.ui.view">
+        <field name="name">payment.approval.level.tree</field>
+        <field name="model">payment.approval.level</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="amount_min"/>
+                <field name="currency_id"/>
+                <field name="approver_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active" column_invisible="True"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="payment_approval_level_action" model="ir.actions.act_window">
+        <field name="name">Niveles de Aprobación</field>
+        <field name="res_model">payment.approval.level</field>
+        <field name="view_mode">tree</field>
+    </record>
+</odoo>

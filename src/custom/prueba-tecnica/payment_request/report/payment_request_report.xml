@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_payment_request" model="ir.actions.report">
+        <field name="name">Solicitud de Pago</field>
+        <field name="model">payment.request</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">payment_request.report_payment_request</field>
+        <field name="report_file">payment_request.report_payment_request</field>
+        <field name="print_report_name">'Solicitud de Pago - %s' % object.name</field>
+        <field name="binding_model_id" ref="model_payment_request"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_payment_request">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="row">
+                            <div class="col-8">
+                                <h2>Solicitud de Pago</h2>
+                                <h4><span t-esc="o.name"/></h4>
+                            </div>
+                            <div class="col-4 text-end">
+                                <span class="badge rounded-pill bg-primary p-2" t-field="o.state"/>
+                            </div>
+                        </div>
+
+                        <hr/>
+
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                <p><strong>Proveedor:</strong> <span t-esc="o.partner_id.name"/></p>
+                                <p><strong>RIF / Identificación:</strong> <span t-esc="o.partner_id.vat or 'N/A'"/></p>
+                                <p><strong>Solicitante:</strong> <span t-esc="o.user_id.name"/></p>
+                                <p><strong>Fecha de Solicitud:</strong> <span t-field="o.date"/></p>
+                            </div>
+                            <div class="col-6">
+                                <p><strong>Monto Solicitado:</strong>
+                                    <span t-field="o.amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                </p>
+                                <p><strong>Moneda:</strong> <span t-esc="o.currency_id.name"/></p>
+                                <p><strong>Compañía:</strong> <span t-esc="o.company_id.name"/></p>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <h5>Concepto y Justificación</h5>
+                                <div class="p-3 border bg-light">
+                                    <span t-esc="o.concept"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4 p-3 border rounded">
+                            <div class="col-6">
+                                <h5>Información de Aprobación</h5>
+                                <t t-if="o.approved_by_id">
+                                    <p><strong>Aprobado por:</strong> <span t-esc="o.approved_by_id.name"/></p>
+                                    <p><strong>Fecha de aprobación:</strong> <span t-field="o.date_approved"/></p>
+                                </t>
+                                <t t-else="">
+                                    <p class="text-muted">Pendiente de aprobación.</p>
+                                </t>
+                            </div>
+                            <div class="col-6">
+                                <h5>Registro Contable / Tesorería</h5>
+                                <t t-if="o.payment_id">
+                                    <p><strong>Pago registrado:</strong> <span t-esc="o.payment_id.name"/></p>
+                                    <p><strong>Fecha de pago:</strong> <span t-field="o.payment_id.date"/></p>
+                                    <p><strong>Monto efectivo:</strong>
+                                        <span t-field="o.payment_id.amount" t-options='{"widget": "monetary", "display_currency": o.payment_id.currency_id}'/>
+                                    </p>
+                                </t>
+                                <t t-else="">
+                                    <p class="text-muted">Sin pago contable procesado.</p>
+                                </t>
+                            </div>
+                        </div>
+
+                        <div class="row mt-5 pt-4 text-center">
+                            <div class="col-4">
+                                <hr style="width: 80%;"/>
+                                <p>Firma Solicitante</p>
+                            </div>
+                            <div class="col-4">
+                                <hr style="width: 80%;"/>
+                                <p>Firma Aprobador</p>
+                            </div>
+                            <div class="col-4">
+                                <hr style="width: 80%;"/>
+                                <p>Firma Tesorería</p>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
