@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_equipment_view_form_inherit_loan" model="ir.ui.view">
+        <field name="name">maintenance.equipment.form.inherit.loan</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Tramo B: Botón inteligente con la cantidad de préstamos que abre sus préstamos -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_loans"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-laptop">
+                    <field name="loan_count" widget="statinfo" string="Préstamos"/>
+                </button>
+            </xpath>
+
+            <!-- Detalle de préstamo activo en la ficha del equipo -->
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="current_loan_id"
+                       readonly="1"
+                       invisible="not current_loan_id"
+                       string="En Préstamo por"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

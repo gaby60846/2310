@@ -37,3 +37,4 @@ __pycache__
 click
 os
 sys
+!src/custom/equipment_loan/

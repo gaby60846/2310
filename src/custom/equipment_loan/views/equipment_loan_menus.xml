@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menú de Préstamos dentro de la App de Mantenimiento (Tramo A) -->
+    <menuitem id="menu_equipment_loan_main"
+              name="Préstamos de Equipos"
+              parent="maintenance.menu_maintenance_title"
+              action="action_equipment_loan"
+              sequence="3"/>
+</odoo>

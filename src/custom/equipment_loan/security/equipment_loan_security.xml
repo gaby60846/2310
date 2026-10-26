@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_equipment_loan" model="ir.module.category">
+        <field name="name">Préstamos de Equipos</field>
+        <field name="description">Control de préstamos de laptops, proyectores y radios al personal</field>
+        <field name="sequence">25</field>
+    </record>
+
+    <!-- Grupo: Gestor de préstamos (Tramo C) -->
+    <record id="group_equipment_loan_manager" model="res.groups">
+        <field name="name">Gestor de préstamos</field>
+        <field name="category_id" ref="module_category_equipment_loan"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+    <!-- Reglas de Registro (Multi-usuario / Privacidad - Tramo C) -->
+    <!-- Usuario estándar: Solo puede ver y crear sus propios préstamos -->
+    <record id="rule_equipment_loan_user" model="ir.rule">
+        <field name="name">Préstamo de Equipos: Usuario solo ve sus préstamos</field>
+        <field name="model_id" ref="model_equipment_loan"/>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Gestor de préstamos: Acceso global a todos los registros -->
+    <record id="rule_equipment_loan_manager" model="ir.rule">
+        <field name="name">Préstamo de Equipos: Gestor ve y gestiona todos los préstamos</field>
+        <field name="model_id" ref="model_equipment_loan"/>
+        <field name="groups" eval="[(4, ref('group_equipment_loan_manager'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+</odoo>
