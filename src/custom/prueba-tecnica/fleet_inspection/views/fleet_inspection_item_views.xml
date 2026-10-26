@@ -8,7 +8,7 @@
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="critical"/>
-                <field name="active" invisible="1"/>
+                <field name="active" column_invisible="True"/>
             </tree>
         </field>
     </record>

@@ -23,8 +23,6 @@ class FleetInspection(models.Model):
         string="Vehículo",
         required=True,
         tracking=True,
-        readonly=True,
-        states={"draft": [("readonly", False)]},
     )
     vehicle_type = fields.Selection(
         VEHICLE_TYPES,
@@ -32,8 +30,6 @@ class FleetInspection(models.Model):
         required=True,
         default="car",
         tracking=True,
-        readonly=True,
-        states={"draft": [("readonly", False)]},
     )
     inspector_id = fields.Many2one(
         "res.users",
@@ -82,23 +78,32 @@ class FleetInspection(models.Model):
             if inspection.odometer < 0:
                 raise ValidationError(_("El kilometraje no puede ser negativo."))
 
-    @api.model
-    def create(self, vals):
-        if vals.get("name", "/") == "/":
-            vals["name"] = self.env["ir.sequence"].next_by_code("fleet.inspection") or "/"
-        if not vals.get("line_ids"):
-            items = self.env["fleet.inspection.item"].search([])
-            vals["line_ids"] = [(0, 0, {"item_id": item.id}) for item in items]
-        return super(FleetInspection, self).create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        items = None
+        for vals in vals_list:
+            if vals.get("name", "/") == "/":
+                vals["name"] = self.env["ir.sequence"].next_by_code("fleet.inspection") or "/"
+            if not vals.get("line_ids"):
+                if items is None:
+                    items = self.env["fleet.inspection.item"].search([])
+                vals["line_ids"] = [(0, 0, {"item_id": item.id}) for item in items]
+        return super().create(vals_list)
 
-    def name_get(self):
-        result = []
+    @api.depends("name", "vehicle_id.name", "vehicle_id.license_plate")
+    def _compute_display_name(self):
         for inspection in self:
             label = inspection.name
             if inspection.vehicle_id:
-                label = "%s - %s" % (inspection.name, inspection.vehicle_id.license_plate or inspection.vehicle_id.name)
-            result.append((inspection.id, label))
-        return result
+                label = "%s - %s" % (
+                    inspection.name,
+                    inspection.vehicle_id.license_plate or inspection.vehicle_id.name,
+                )
+            inspection.display_name = label
+
+    def name_get(self):
+        """Compatibilidad con código o pruebas que invoquen name_get()."""
+        return [(i.id, i.display_name) for i in self]
 
     def action_start(self):
         for inspection in self:

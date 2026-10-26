@@ -37,6 +37,7 @@ class TestFleetInspection(TransactionCase):
 
     def test_name_get_includes_plate(self):
         inspection = self._new_inspection()
+        self.assertIn("AB123CD", inspection.display_name)
         self.assertIn("AB123CD", inspection.name_get()[0][1])
 
     def test_full_flow_approved(self):
