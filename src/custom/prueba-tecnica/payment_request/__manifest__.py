@@ -1,0 +1,22 @@
+{
+    "name": "Solicitudes de Pago a Proveedores con Aprobación",
+    "summary": "Flujo de aprobación jerárquico de solicitudes de pago con control presupuestario y multi-divisa",
+    "version": "17.0.1.0.0",
+    "category": "Accounting/Accounting",
+    "author": "Binaural",
+    "license": "LGPL-3",
+    "depends": ["account", "mail"],
+    "data": [
+        "security/payment_request_security.xml",
+        "security/ir.model.access.csv",
+        "data/ir_sequence_data.xml",
+        "wizard/payment_request_reject_wizard_views.xml",
+        "wizard/payment_request_pay_wizard_views.xml",
+        "views/payment_approval_level_views.xml",
+        "views/payment_request_views.xml",
+        "views/payment_request_menus.xml",
+        "report/payment_request_report.xml",
+    ],
+    "installable": True,
+    "application": False,
+}

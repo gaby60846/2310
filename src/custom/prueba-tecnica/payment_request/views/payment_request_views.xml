@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="payment_request_view_tree" model="ir.ui.view">
+        <field name="name">payment.request.tree</field>
+        <field name="model">payment.request</field>
+        <field name="arch" type="xml">
+            <tree decoration-success="state == 'paid'"
+                  decoration-info="state == 'approved'"
+                  decoration-warning="state == 'submitted'"
+                  decoration-danger="state == 'rejected'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="date"/>
+                <field name="amount" sum="Total Solicitado"/>
+                <field name="currency_id"/>
+                <field name="approver_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="state" widget="badge"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="payment_request_view_form" model="ir.ui.view">
+        <field name="name">payment.request.form</field>
+        <field name="model">payment.request</field>
+        <field name="arch" type="xml">
+            <form string="Solicitud de Pago">
+                <header>
+                    <button name="action_submit" string="Enviar Solicitud" type="object" class="oe_highlight"
+                            invisible="state != 'draft'"/>
+
+                    <button name="action_approve" string="Aprobar" type="object" class="oe_highlight"
+                            invisible="state != 'submitted'"
+                            groups="payment_request.group_payment_request_approver,payment_request.group_payment_request_treasury"/>
+
+                    <button name="action_reject_wizard" string="Rechazar" type="object" class="btn-danger"
+                            invisible="state != 'submitted'"
+                            groups="payment_request.group_payment_request_approver,payment_request.group_payment_request_treasury"/>
+
+                    <button name="action_pay_wizard" string="Registrar Pago" type="object" class="oe_highlight"
+                            invisible="state != 'approved'"
+                            groups="payment_request.group_payment_request_treasury"/>
+
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,paid"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <field name="payment_id" invisible="1"/>
+                        <button name="%(account.action_account_payments)d" type="action" class="oe_stat_button" icon="fa-money"
+                                invisible="not payment_id"
+                                context="{'search_default_id': payment_id}">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Pago Contable</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="alert alert-danger" role="alert" invisible="state != 'rejected'">
+                        <strong>Solicitud Rechazada:</strong> <field name="reject_reason" readonly="1"/>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id" readonly="state != 'draft'"/>
+                            <field name="amount" readonly="state != 'draft'"/>
+                            <field name="currency_id" readonly="state != 'draft'"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="date" readonly="state != 'draft'"/>
+                            <field name="user_id" readonly="state != 'draft'"/>
+                            <field name="approver_id"/>
+                            <field name="approved_by_id" invisible="state not in ('approved', 'paid')"/>
+                            <field name="date_approved" invisible="state not in ('approved', 'paid')"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Concepto y Justificación" name="concept">
+                            <field name="concept" placeholder="Detalle el motivo, justificación y número de factura u orden de compra..."
+                                   readonly="state != 'draft'"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="payment_request_view_search" model="ir.ui.view">
+        <field name="name">payment.request.search</field>
+        <field name="model">payment.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="user_id"/>
+                <field name="approver_id"/>
+                <separator/>
+                <filter name="my_requests" string="Mis Solicitudes" domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter name="draft" string="Borrador" domain="[('state', '=', 'draft')]"/>
+                <filter name="submitted" string="Enviadas / Por Aprobar" domain="[('state', '=', 'submitted')]"/>
+                <filter name="approved" string="Aprobadas / Por Pagar" domain="[('state', '=', 'approved')]"/>
+                <filter name="paid" string="Pagadas" domain="[('state', '=', 'paid')]"/>
+                <filter name="rejected" string="Rechazadas" domain="[('state', '=', 'rejected')]"/>
+                <group expand="0" string="Agrupar por">
+                    <filter name="group_partner" string="Proveedor" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_user" string="Solicitante" context="{'group_by': 'user_id'}"/>
+                    <filter name="group_state" string="Estado" context="{'group_by': 'state'}"/>
+                    <filter name="group_date" string="Fecha" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="payment_request_action" model="ir.actions.act_window">
+        <field name="name">Solicitudes de Pago</field>
+        <field name="res_model">payment.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_submitted': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear una nueva solicitud de pago a proveedor
+            </p>
+        </field>
+    </record>
+</odoo>
