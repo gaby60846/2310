@@ -24,12 +24,20 @@ class FleetInspection(models.Model):
         required=True,
         tracking=True,
     )
-    vehicle_type = fields.Selection(
-        VEHICLE_TYPES,
+    vehicle_type_id = fields.Many2one(
+        "fleet.inspection.vehicle.type",
         string="Tipo de vehículo",
         required=True,
-        default="car",
+        default=lambda self: self._default_vehicle_type_id(),
         tracking=True,
+    )
+    vehicle_type = fields.Selection(
+        VEHICLE_TYPES,
+        string="Tipo de vehículo (código)",
+        compute="_compute_vehicle_type",
+        inverse="_inverse_vehicle_type",
+        store=False,
+        help="Campo de compatibilidad sincronizado con vehicle_type_id.",
     )
     inspector_id = fields.Many2one(
         "res.users",
@@ -66,6 +74,27 @@ class FleetInspection(models.Model):
         ("name_uniq", "unique(name)", "El número de la inspección debe ser único."),
     ]
 
+    @api.model
+    def _default_vehicle_type_id(self):
+        return self.env["fleet.inspection.vehicle.type"].search([("code", "=", "car")], limit=1)
+
+    @api.depends("vehicle_type_id")
+    def _compute_vehicle_type(self):
+        for inspection in self:
+            inspection.vehicle_type = inspection.vehicle_type_id.code if inspection.vehicle_type_id else False
+
+    def _inverse_vehicle_type(self):
+        for inspection in self:
+            if inspection.vehicle_type:
+                vtype = self.env["fleet.inspection.vehicle.type"].search(
+                    [("code", "=", inspection.vehicle_type)], limit=1
+                )
+                if not vtype:
+                    vtype = self.env["fleet.inspection.vehicle.type"].search(
+                        [("code", "=", "other")], limit=1
+                    )
+                inspection.vehicle_type_id = vtype
+
     @api.depends("line_ids.result")
     def _compute_counts(self):
         for inspection in self:
@@ -88,6 +117,13 @@ class FleetInspection(models.Model):
                 if items is None:
                     items = self.env["fleet.inspection.item"].search([])
                 vals["line_ids"] = [(0, 0, {"item_id": item.id}) for item in items]
+            if "vehicle_type" in vals and "vehicle_type_id" not in vals:
+                code = vals["vehicle_type"]
+                vtype = self.env["fleet.inspection.vehicle.type"].search([("code", "=", code)], limit=1)
+                if not vtype:
+                    vtype = self.env["fleet.inspection.vehicle.type"].search([("code", "=", "other")], limit=1)
+                if vtype:
+                    vals["vehicle_type_id"] = vtype.id
         return super().create(vals_list)
 
     @api.depends("name", "vehicle_id.name", "vehicle_id.license_plate")
