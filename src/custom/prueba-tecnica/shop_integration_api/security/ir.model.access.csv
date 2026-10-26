@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_api_request_log_manager,api.request.log.manager,model_api_request_log,sales_team.group_sale_manager,1,1,1,1
+access_api_idempotency_key_manager,api.idempotency.key.manager,model_api_idempotency_key,sales_team.group_sale_manager,1,1,1,1
+access_api_webhook_log_manager,api.webhook.log.manager,model_api_webhook_log,sales_team.group_sale_manager,1,1,1,1
