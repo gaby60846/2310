@@ -20,20 +20,9 @@ class TestShopIntegrationApi(HttpCase):
         )
 
         # Crear API key nativa usando res.users.apikeys
-        # En Odoo 17, se genera mediante _generate o create directo
-        cls.raw_api_key = "test_secret_api_key_12345"
-        cls.env["res.users.apikeys"].sudo()._generate(
-            "rpc",
+        cls.api_key_token = cls.env["res.users.apikeys"].with_user(cls.api_user)._generate(
+            scope="rpc",
             name="Test Shop Key",
-            user_id=cls.api_user.id,
-        )
-        # Para garantizar un token fijo en el test:
-        # En Odoo 17 res.users.apikeys usa hash pbkdf2/bcrypt, pero _generate devuelve la clave en claro
-        # Generamos una clave conocida:
-        cls.api_key_token = cls.env["res.users.apikeys"].sudo()._generate(
-            "rpc",
-            name="Test Client Key",
-            user_id=cls.api_user.id,
         )
 
         cls.auth_headers = {
@@ -60,6 +49,7 @@ class TestShopIntegrationApi(HttpCase):
             "name": "Smartphone X",
             "default_code": "PHONE-X",
             "categ_id": cls.category_sub.id,
+            "type": "product",
             "list_price": 500.0,
             "sale_ok": True,
             "active": True,
@@ -69,6 +59,7 @@ class TestShopIntegrationApi(HttpCase):
             "name": "Cable USB-C",
             "default_code": "CABLE-C",
             "categ_id": cls.category_main.id,
+            "type": "product",
             "list_price": 15.0,
             "sale_ok": True,
             "active": True,
@@ -78,6 +69,7 @@ class TestShopIntegrationApi(HttpCase):
             "name": "Camisa Polo",
             "default_code": "SHIRT-01",
             "categ_id": cls.category_other.id,
+            "type": "product",
             "list_price": 30.0,
             "sale_ok": True,
             "active": True,
@@ -288,13 +280,15 @@ class TestShopIntegrationApi(HttpCase):
 
     def test_stock_queries_do_not_scale_with_products(self):
         """El cálculo de stock se realiza en lote y las consultas SQL no crecen linealmente con N."""
-        # Consultar con 1 producto vs consultar con 3 productos
-        with self.assertQueries(15):  # Límite superior constante de consultas ORM
-            products = self.env["product.product"].search([("sale_ok", "=", True)])
-            quantities = products._compute_quantities_dict(
-                lot_id=False, owner_id=False, package_id=False, from_date=False, to_date=False
-            )
-            self.assertEqual(len(quantities), len(products))
+        # Medimos que el cálculo de stock se hace en lote (_compute_quantities_dict)
+        count0 = self.cr.sql_log_count
+        products = self.env["product.product"].search([("sale_ok", "=", True)])
+        quantities = products._compute_quantities_dict(
+            lot_id=False, owner_id=False, package_id=False, from_date=False, to_date=False
+        )
+        query_count = self.cr.sql_log_count - count0
+        self.assertEqual(len(quantities), len(products))
+        self.assertLessEqual(query_count, 15, "Las consultas SQL deben ser en lote y no O(N)")
 
     def test_webhook_triggered_on_delivery_without_blocking(self):
         """Al validar entrega (stock.picking done) se dispara webhook resiliente sin bloquear."""
@@ -321,3 +315,4 @@ class TestShopIntegrationApi(HttpCase):
         log = self.env["api.webhook.log"].sudo().search([("picking_id", "=", picking.id)], limit=1)
         self.assertTrue(log)
         self.assertIn(log.state, ["pending", "failed"])
+

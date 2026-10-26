@@ -21,6 +21,8 @@ class TestPaymentRequest(TransactionCase):
             "symbol": "Bs.",
             "rounding": 0.01,
         })
+        cls.currency_ves.sudo().write({"active": True})
+        cls.currency_usd.sudo().write({"active": True})
 
         # Configurar tasa: 1 USD = 50 VES
         cls.env["res.currency.rate"].create({
@@ -238,7 +240,7 @@ class TestPaymentRequest(TransactionCase):
         })
         pay_wiz.action_confirm_payment()
         self.assertEqual(req.state, "paid")
-        self.assertTrue(req.payment_id)
+        self.assertTrue(req.sudo().payment_id)
 
         # Intento de segundo pago debe fallar
         with self.assertRaises(UserError):
@@ -281,8 +283,8 @@ class TestPaymentRequest(TransactionCase):
         self.assertAlmostEqual(pay_wiz.payment_amount, 5000.0)
 
         pay_wiz.action_confirm_payment()
-        self.assertEqual(req.payment_id.amount, 5000.0)
-        self.assertEqual(req.payment_id.currency_id, self.currency_ves)
+        self.assertEqual(req.sudo().payment_id.amount, 5000.0)
+        self.assertEqual(req.sudo().payment_id.currency_id, self.currency_ves)
 
     def test_multi_company_isolation(self):
         """Un usuario de la compañía B no puede ver solicitudes de la compañía A."""
@@ -318,4 +320,5 @@ class TestPaymentRequest(TransactionCase):
 
         # La solicitud debe permanecer en estado 'approved'
         self.assertEqual(req.state, "approved")
-        self.assertFalse(req.payment_id)
+        self.assertFalse(req.sudo().payment_id)
+

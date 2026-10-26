@@ -92,3 +92,4 @@ if __name__ == "__main__":
             print("Ejemplo: ./odoo bash <instancia> -c \"python3 -c \\\"import audit_affected_orders; audit_affected_orders.run_audit(env)\\\"\"")
     except Exception as e:
         print(f"Error al ejecutar auditoría: {e}", file=sys.stderr)
+

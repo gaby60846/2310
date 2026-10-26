@@ -12,3 +12,4 @@ class ApiRequestLog(models.Model):
     status_code = fields.Integer(string="Código de respuesta", required=True, index=True)
     duration_ms = fields.Float(string="Duración (ms)", digits=(10, 2))
     ip_address = fields.Char(string="Dirección IP")
+

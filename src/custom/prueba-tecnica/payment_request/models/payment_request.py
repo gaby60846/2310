@@ -246,3 +246,4 @@ class PaymentRequest(models.Model):
             "target": "new",
             "context": {"default_payment_request_id": self.id},
         }
+

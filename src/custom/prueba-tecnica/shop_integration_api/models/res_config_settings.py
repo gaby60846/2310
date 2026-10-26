@@ -19,3 +19,4 @@ class ResConfigSettings(models.TransientModel):
         config_parameter="shop_integration_api.order_default_state",
         help="Decide si los pedidos creados por la API se crean en estado cotización o confirmados.",
     )
+

@@ -15,3 +15,4 @@ class ApiIdempotencyKey(models.Model):
     _sql_constraints = [
         ("key_uniq", "unique(key)", "La clave de idempotencia debe ser única."),
     ]
+

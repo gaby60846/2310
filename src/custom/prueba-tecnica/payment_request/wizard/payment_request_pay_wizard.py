@@ -146,3 +146,4 @@ class PaymentRequestPayWizard(models.TransientModel):
         req.message_post(body=msg, subtype_xmlid="mail.mt_comment")
 
         return {"type": "ir.actions.act_window_close"}
+

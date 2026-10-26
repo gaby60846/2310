@@ -76,3 +76,4 @@ El módulo opera con soporte multi-compañía nativo:
   <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
   ```
 - **Garantía:** Un usuario de la Compañía B no puede leer, consultar ni interactuar con las solicitudes ni niveles de la Compañía A, manteniendo la estricta confidencialidad entre razones sociales.
+

@@ -33,3 +33,4 @@ class PaymentRequestRejectWizard(models.TransientModel):
         # Cancelar actividades pendientes
         req.activity_feedback(["mail.mail_activity_data_todo"], feedback=_("Rechazada: %s") % self.reason)
         return {"type": "ir.actions.act_window_close"}
+

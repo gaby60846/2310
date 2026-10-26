@@ -104,3 +104,4 @@ def migrate(cr, version):
     _logger.info("Iniciando migración post de fleet_inspection para versión %s", version)
     ensure_vehicle_types(cr)
     migrate_inspections_batch(cr)
+

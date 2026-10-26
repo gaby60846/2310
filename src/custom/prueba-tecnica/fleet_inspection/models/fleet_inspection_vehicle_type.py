@@ -14,3 +14,4 @@ class FleetInspectionVehicleType(models.Model):
     _sql_constraints = [
         ("code_uniq", "unique(code)", "El código del tipo de vehículo debe ser único."),
     ]
+

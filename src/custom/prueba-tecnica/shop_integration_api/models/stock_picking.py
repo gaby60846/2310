@@ -30,7 +30,7 @@ class StockPicking(models.Model):
             "client_order_ref": self.sale_id.client_order_ref or False,
             "picking_id": self.id,
             "picking_name": self.name,
-            "tracking_number": self.carrier_tracking_ref or False,
+            "tracking_number": getattr(self, "carrier_tracking_ref", False) or False,
             "date_done": str(self.date_done),
             "lines": [
                 {
@@ -53,3 +53,4 @@ class StockPicking(models.Model):
             webhook_log.action_send()
         except Exception as e:
             _logger.warning("No se pudo encolar el webhook de entrega para el albarán %s: %s", self.name, e)
+

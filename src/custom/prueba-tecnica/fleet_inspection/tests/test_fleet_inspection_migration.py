@@ -35,6 +35,10 @@ class TestFleetInspectionMigration(TransactionCase):
         # Asegurar catálogo
         self.post_migrate.ensure_vehicle_types(cr)
 
+        # Crear columna vehicle_type y relajar not-null temporalmente para simular estado v1.0.0 antes de migración
+        cr.execute("ALTER TABLE fleet_inspection ADD COLUMN IF NOT EXISTS vehicle_type varchar;")
+        cr.execute("ALTER TABLE fleet_inspection ALTER COLUMN vehicle_type_id DROP NOT NULL;")
+
         # Crear registros directamente emulando la base antes de migrar (con vehicle_type varchar)
         cr.execute(
             """
@@ -86,3 +90,4 @@ class TestFleetInspectionMigration(TransactionCase):
         inspections.invalidate_recordset()
         self.assertEqual(by_name["INS/TEST/01"].vehicle_type_id.code, "car")
         self.assertEqual(by_name["INS/TEST/04"].vehicle_type_id.code, "other")
+

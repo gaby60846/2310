@@ -18,3 +18,4 @@
 ## Lo que escribiste tú sin IA
 - Redacción manual de la especificación OpenAPI 3.0 en `openapi.yaml`.
 - Lógica de resiliencia en el envío de webhooks para garantizar que una caída de la tienda externa nunca impida al usuario de almacén validar una entrega.
+

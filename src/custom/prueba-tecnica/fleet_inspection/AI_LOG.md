@@ -18,3 +18,4 @@
 ## Lo que escribiste tú sin IA
 - Redacción detallada de la tabla comparativa de cambios de versión en el `README.md`.
 - Verificación de la preservación estricta del valor «otro» en inspecciones sin clasificar.
+

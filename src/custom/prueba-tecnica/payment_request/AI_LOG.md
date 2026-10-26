@@ -19,3 +19,4 @@
 - Redacción de la sección de consultoría «Supuestos y preguntas al cliente» dirigida a Carolina Méndez en el `README.md`.
 - Redacción del documento de arquitectura [`ARCHITECTURE.md`](./ARCHITECTURE.md).
 - Diseño del formato visual del reporte PDF QWeb de solicitud de pago para la carpeta de archivo del proveedor.
+

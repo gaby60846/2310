@@ -10,3 +10,4 @@
     <menuitem id="menu_shop_api_webhook_logs" name="Cola de Webhooks"
               parent="menu_shop_api_root" action="api_webhook_log_action" sequence="20"/>
 </odoo>
+

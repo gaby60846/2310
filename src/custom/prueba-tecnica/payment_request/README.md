@@ -42,3 +42,4 @@ O con la instancia:
 ```bash
 ./odoo test prueba-tecnica payment_request
 ```
+

@@ -151,3 +151,4 @@ Se auditó todo el código de `sale_commission`:
 1. **Obligatoriedad de tests bajo perfiles de menor privilegio:** En todo PR que involucre transacciones de ventas o compras, los tests unitarios deben ejecutarse explícitamente con `.with_user(vendedor)`. Se prohíbe evaluar flujos de usuario final únicamente como `self.env.user` (administrador).
 2. **Regla de revisión sobre `self.env.user`:** En modelos de documentos (`sale.order`, `account.move`), queda prohibido usar `self.env.user` para lógica de negocio o cálculos financieros; debe emplearse la relación de modelo (`order.user_id`).
 3. **Validación de matriz ACL:** Los PRs que agreguen modelos deben acompañarse de un test de permisos que pruebe lectura/escritura tanto para el rol de usuario como para el de administrador.
+

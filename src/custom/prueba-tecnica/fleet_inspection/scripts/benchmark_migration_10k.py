@@ -149,3 +149,4 @@ if __name__ == "__main__":
         run_benchmark(env)
     else:
         print("Ejecutar dentro del contexto de Odoo: ./odoo bash prueba-tecnica")
+

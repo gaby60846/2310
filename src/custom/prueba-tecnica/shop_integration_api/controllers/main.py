@@ -48,10 +48,10 @@ def _authenticate_request():
         if len(parts) == 2 and parts[0].lower() == "bearer":
             token = parts[1].strip()
             try:
-                # Odoo 17 res.users.apikeys nativo
-                user_id = request.env["res.users.apikeys"]._check_credentials(scope="rpc", key=token)
+                # Odoo 17 res.users.apikeys nativo usando sudo para evitar ACL check de uid=None
+                user_id = request.env["res.users.apikeys"].sudo()._check_credentials(scope="rpc", key=token)
                 if user_id:
-                    user = request.env["res.users"].browse(user_id)
+                    user = request.env["res.users"].sudo().browse(user_id)
                     if user.exists() and user.active:
                         return user
             except Exception as e:
@@ -60,8 +60,8 @@ def _authenticate_request():
 
     # Fallback: sesión de usuario autenticada previamente (para auth='user' tradicional)
     if request.session.uid:
-        user = request.env.user
-        if user and not user._is_public():
+        user = request.env["res.users"].sudo().browse(request.session.uid)
+        if user and user.exists() and not user._is_public():
             return user
 
     return None
@@ -345,3 +345,4 @@ class ShopIntegrationApiController(http.Controller):
 
         _log_api_request("/api/v1/orders", user, 201, start_time)
         return request.make_json_response(response_data, status=201)
+

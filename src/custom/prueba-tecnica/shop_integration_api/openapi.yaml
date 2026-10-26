@@ -309,3 +309,4 @@ components:
       properties:
         error:
           $ref: '#/components/schemas/ErrorDetail'
+

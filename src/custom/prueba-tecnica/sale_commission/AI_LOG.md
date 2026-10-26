@@ -18,3 +18,4 @@
 ## Lo que escribiste tú sin IA
 - Redacción del mensaje de comunicación de 4 líneas dirigido a Carolina sin jerga técnica.
 - Decisión de diseño de delegar `action_recompute_commissions` directamente en `line._get_commission_percent()` para mantener una única fuente de verdad (principio DRY).
+

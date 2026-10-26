@@ -42,3 +42,4 @@
         <field name="search_view_id" ref="api_request_log_view_search"/>
     </record>
 </odoo>
+

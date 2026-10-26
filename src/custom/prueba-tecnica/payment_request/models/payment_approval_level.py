@@ -23,3 +23,4 @@ class PaymentApprovalLevel(models.Model):
     )
     sequence = fields.Integer(string="Secuencia", default=10)
     active = fields.Boolean(string="Activo", default=True)
+

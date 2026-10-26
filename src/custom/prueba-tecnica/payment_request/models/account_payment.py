@@ -10,3 +10,4 @@ class AccountPayment(models.Model):
         readonly=True,
         copy=False,
     )
+

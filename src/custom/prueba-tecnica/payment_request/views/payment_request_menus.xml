@@ -13,3 +13,4 @@
     <menuitem id="menu_payment_approval_level" name="Niveles de Aprobación"
               parent="menu_payment_request_config" action="payment_approval_level_action" sequence="10"/>
 </odoo>
+

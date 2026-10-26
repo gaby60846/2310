@@ -159,3 +159,4 @@ En caso de fallo crítico irrecuperable durante la actualización:
    ./odoo start produccion
    ```
 5. **Notificar a las partes interesadas:** Registrar el motivo del rollback y reprogramar la ventana de mantenimiento.
+
