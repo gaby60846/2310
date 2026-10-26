@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_shop_api_root" name="Integración Tienda API"
+              parent="sale.menu_sale_config" sequence="90"
+              groups="sales_team.group_sale_manager"/>
+
+    <menuitem id="menu_shop_api_request_logs" name="Logs de Peticiones API"
+              parent="menu_shop_api_root" action="api_request_log_action" sequence="10"/>
+
+    <menuitem id="menu_shop_api_webhook_logs" name="Cola de Webhooks"
+              parent="menu_shop_api_root" action="api_webhook_log_action" sequence="20"/>
+</odoo>

@@ -1,0 +1,311 @@
+openapi: 3.0.3
+info:
+  title: API de Integración de Tienda en Línea — Odoo 17
+  description: |
+    API REST para sincronización de catálogo de productos con niveles de inventario en tiempo real
+    y recepción de pedidos de venta desde la tienda en línea.
+    
+    ### Autenticación
+    Las peticiones requieren una API Key nativa de Odoo (`res.users.apikeys`) enviada en la cabecera:
+    ```http
+    Authorization: Bearer <TU_API_KEY>
+    ```
+    
+    ### Idempotencia
+    Para evitar la duplicación de pedidos ante reintentos de red, envíe la cabecera opcional:
+    ```http
+    Idempotency-Key: <UUID_O_VALOR_UNICO>
+    ```
+  version: 1.0.0
+servers:
+  - url: http://localhost:8069
+    description: Servidor de desarrollo local
+
+paths:
+  /api/v1/products:
+    get:
+      summary: Consultar catálogo de productos con stock
+      description: |
+        Retorna la lista de productos activos y vendibles, con stock calculado en lote.
+        Soporta filtrado por categoría, inventario disponible, fecha de modificación y paginación.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: category_id
+          in: query
+          required: false
+          description: ID de la categoría de producto (incluye subcategorías).
+          schema:
+            type: integer
+            example: 5
+        - name: only_stock
+          in: query
+          required: false
+          description: Si es `true`, excluye productos con stock menor o igual a cero.
+          schema:
+            type: boolean
+            example: true
+        - name: updated_since
+          in: query
+          required: false
+          description: Filtra productos modificados a partir de esta fecha (`YYYY-MM-DD` o `YYYY-MM-DD HH:MM:SS`).
+          schema:
+            type: string
+            example: "2026-10-01"
+        - name: page
+          in: query
+          required: false
+          description: Número de página (base 1).
+          schema:
+            type: integer
+            default: 1
+            example: 1
+        - name: limit
+          in: query
+          required: false
+          description: Cantidad de registros por página (máximo 100).
+          schema:
+            type: integer
+            default: 20
+            example: 20
+      responses:
+        '200':
+          description: Catálogo obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListResponse'
+        '400':
+          description: Parámetro o formato de fecha inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: No autorizado o API Key inválida.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/orders:
+    post:
+      summary: Crear un pedido de venta
+      description: |
+        Crea un pedido de venta a partir del RIF del cliente (`vat`) y las líneas de producto solicitadas.
+        Valida la existencia del cliente, la existencia de cada producto y cantidades positivas.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: false
+          description: Clave única para garantizar idempotencia en caso de reintentos.
+          schema:
+            type: string
+            example: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreateRequest'
+      responses:
+        '201':
+          description: Pedido de venta creado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '400':
+          description: Formato JSON inválido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: No autorizado o API Key inválida.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflicto de idempotencia (misma clave enviada con payload diferente).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Error de validación de negocio (RIF inexistente, producto no encontrado, cantidad <= 0).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ProductNotFound:
+                  value:
+                    error:
+                      code: "PRODUCT_NOT_FOUND"
+                      field: "lines[1].default_code"
+                      message: "No existe un producto con el código ABC-123"
+                PartnerNotFound:
+                  value:
+                    error:
+                      code: "PARTNER_NOT_FOUND"
+                      field: "vat"
+                      message: "No existe ningún cliente registrado con el RIF J-12345678-0"
+                InvalidQuantity:
+                  value:
+                    error:
+                      code: "INVALID_QUANTITY"
+                      field: "lines[0].qty"
+                      message: "La cantidad en la línea 1 debe ser un número estrictamente mayor que cero."
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: APIKey
+      description: Token API nativo generado desde Preferencias > Seguridad en Odoo.
+
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 101
+        default_code:
+          type: string
+          nullable: true
+          example: "PROD-ABC"
+        name:
+          type: string
+          example: "Bujía Platino"
+        list_price:
+          type: number
+          format: float
+          example: 25.50
+        qty_available:
+          type: number
+          format: float
+          example: 14.0
+
+    PaginationMetadata:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 85
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total_pages:
+          type: integer
+          example: 5
+        has_next:
+          type: boolean
+          example: true
+        has_prev:
+          type: boolean
+          example: false
+
+    ProductListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        meta:
+          $ref: '#/components/schemas/PaginationMetadata'
+
+    OrderLineItem:
+      type: object
+      required:
+        - default_code
+        - qty
+      properties:
+        default_code:
+          type: string
+          description: Código interno único del producto.
+          example: "PROD-ABC"
+        qty:
+          type: number
+          description: Cantidad solicitada (debe ser > 0).
+          example: 2
+
+    OrderCreateRequest:
+      type: object
+      required:
+        - vat
+        - lines
+      properties:
+        vat:
+          type: string
+          description: RIF o identificación fiscal del cliente registrado en Odoo.
+          example: "J-12345678-0"
+        client_order_ref:
+          type: string
+          description: Referencia externa del pedido generada por la tienda.
+          example: "SHOP-PED-2026-0042"
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderLineItem'
+
+    OrderResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 245
+        name:
+          type: string
+          example: "S00245"
+        client_order_ref:
+          type: string
+          nullable: true
+          example: "SHOP-PED-2026-0042"
+        state:
+          type: string
+          example: "draft"
+        amount_untaxed:
+          type: number
+          format: float
+          example: 51.00
+        amount_total:
+          type: number
+          format: float
+          example: 59.16
+        date_order:
+          type: string
+          example: "2026-10-26 13:00:00"
+
+    ErrorDetail:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          example: "PRODUCT_NOT_FOUND"
+        field:
+          type: string
+          example: "lines[1].default_code"
+        message:
+          type: string
+          example: "No existe un producto con el código ABC-123"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'

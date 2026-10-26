@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="api_webhook_log_view_tree" model="ir.ui.view">
+        <field name="name">api.webhook.log.tree</field>
+        <field name="model">api.webhook.log</field>
+        <field name="arch" type="xml">
+            <tree decoration-success="state == 'sent'" decoration-danger="state == 'failed'" decoration-warning="state == 'pending'">
+                <field name="create_date" string="Creado"/>
+                <field name="event"/>
+                <field name="target_url"/>
+                <field name="picking_id"/>
+                <field name="attempts"/>
+                <field name="response_code"/>
+                <field name="state" widget="badge"/>
+                <field name="next_retry"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="api_webhook_log_view_form" model="ir.ui.view">
+        <field name="name">api.webhook.log.form</field>
+        <field name="model">api.webhook.log</field>
+        <field name="arch" type="xml">
+            <form string="Registro de Webhook">
+                <header>
+                    <button name="action_send" string="Reintentar ahora" type="object" class="oe_highlight"
+                            invisible="state == 'sent'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,sent,failed"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="event"/>
+                            <field name="target_url"/>
+                            <field name="picking_id"/>
+                        </group>
+                        <group>
+                            <field name="attempts"/>
+                            <field name="last_attempt"/>
+                            <field name="next_retry"/>
+                            <field name="response_code"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Payload JSON" name="payload">
+                            <field name="payload" widget="text"/>
+                        </page>
+                        <page string="Respuesta del servidor" name="response">
+                            <field name="response_body" widget="text"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="api_webhook_log_action" model="ir.actions.act_window">
+        <field name="name">Cola de Webhooks</field>
+        <field name="res_model">api.webhook.log</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

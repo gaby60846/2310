@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_inherit_shop_api" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.shop.api</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='sale_ebay']" position="after">
+                <h2 class="mt32">Integración con Tienda en Línea (API)</h2>
+                <div class="row mt16 o_settings_container">
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Webhook de Entrega</span>
+                            <div class="text-muted">
+                                URL de la tienda que recibirá el aviso 'order.delivered' al validar el albarán.
+                            </div>
+                            <div class="mt8">
+                                <field name="shop_webhook_url" placeholder="https://mitienda.com/api/webhooks/odoo"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Estado inicial de pedidos API</span>
+                            <div class="text-muted">
+                                Indica si los pedidos creados por la API entran como cotización o confirmados.
+                            </div>
+                            <div class="mt8">
+                                <field name="shop_order_default_state"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
