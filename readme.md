@@ -1,5 +1,10 @@
 # Binaural Workspace — Multi-Instance Odoo Docker
 
+> [!IMPORTANT]
+> **Prueba técnica — Desarrollador Odoo (Versión 2026-Q4)**  
+> **Versión elegida de Odoo:** **Odoo 17.0** (ODOO_VERSION=17.0 en .env e instances.json).  
+> Todos los módulos y documentación de la prueba técnica se encuentran en [src/custom/prueba-tecnica/](./src/custom/prueba-tecnica/README.md).
+
 Entorno de desarrollo que permite levantar **múltiples instancias de Odoo** (diferentes versiones, diferentes proyectos) desde un único directorio, cada una con sus propios addons, base de datos y puerto. Todo se configura en un archivo `instances.json`.
 
 Compatible con Odoo 14.0, 16.0, 17.0, 18.0, 19.0 y master.
